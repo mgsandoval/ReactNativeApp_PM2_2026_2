@@ -7,7 +7,6 @@ import Usuarios from "./src/pantallas/CrearUsuario";
 
 const Stack = createNativeStackNavigator();
 
-
 export default function App (){
   return (
     <NavigationContainer>

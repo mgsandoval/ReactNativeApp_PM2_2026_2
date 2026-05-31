@@ -11,21 +11,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login Básico 1</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ingrese un usuario"
-        value={user}
-        onChangeText={setUser}
-        autoCapitalize='none'
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        value={pass}
-        onChangeText={setPass}
-        secureTextEntry
-      />
+      <Text style={styles.title}>Pantalla Principal</Text>
       <StatusBar style="auto" />
     </View>
   );

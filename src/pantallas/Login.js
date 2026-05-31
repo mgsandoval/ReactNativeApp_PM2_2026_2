@@ -1,7 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { TextInput } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, TextInput, Image } from "react-native";
 import CustomAlert from "../componentes/CustomAlert";
 import { useNavigation } from "@react-navigation/native";
 
@@ -27,29 +26,38 @@ export default function App() {
 
    ///FUNCIONES
    const manejaLogin = () => {
-      console.log("Boton Presionado");
+      console.log("Botón Presionado");
 
       if (user.trim() === "" || pass.trim() === "") {
-         showCustomAlert("Campos vacíos", `Usuario y Contraseña`);
+         showCustomAlert("Campos vacíos", `Por favor, ingrese Usuario y Contraseña`);
          return;
       } else if (user === "admin" && pass === "admin") {
-         showCustomAlert("Bienvenido!", `Ha ingresado correctamente`, () => {
-            navigation.navigate("Login");
+         showCustomAlert("¡Bienvenido!", "Ha ingresado correctamente", () => {
+            navigation.navigate("Home");
          });
          return;
       }
    };
 
+   const manejaCrearCuenta = () => {
+      navigation.navigate("Usuarios");
+   };
+
+
    return (
       <View style={styles.container}>
-         <Text style={styles.title}>Login Basico 1</Text>
+         <Image
+            source={require('../../assets/usuario_icon.png')}
+            style={ styles.img }
+         />
+         <Text style={styles.title}>Iniciar sesión</Text>
          <TextInput
             style={styles.input}
             placeholder="Ingrese un usuario"
             value={user}
             autoCapitalize="none"
             onChangeText={setUser}
-         ></TextInput>
+         />
 
          <TextInput
             style={styles.input}
@@ -57,11 +65,32 @@ export default function App() {
             value={pass}
             secureTextEntry
             onChangeText={setPass}
-         ></TextInput>
+         />
 
          <TouchableOpacity style={styles.btn} onPress={manejaLogin}>
-            <Text style={styles.btnText}>Entrar</Text>
+            <Text style={styles.btnTextLight}>Entrar</Text>
          </TouchableOpacity>
+
+         <TouchableOpacity style={styles.btnSecondary}>
+            <Text style={styles.btnTextDark}>Olvidé mi contraseña</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity style={styles.btnFacebook}>
+            <Text style={styles.btnTextLight}>Iniciar sesión con Facebook</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity style={styles.btnGoogle}>
+            <Text style={styles.btnTextLight}>Iniciar sesión con Google</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity style={styles.btnApple}>
+            <Text style={styles.btnTextLight}>Iniciar sesión con Apple</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity style={styles.btnSecondary} onPress={manejaCrearCuenta}>
+            <Text style={styles.btnTextDark}>¿No tienes cuenta? Crea una</Text>
+         </TouchableOpacity>
+
          <CustomAlert
             visible={alert.visible}
             title={alert.title}
@@ -89,10 +118,11 @@ const styles = StyleSheet.create({
       justifyContent: "center",
    },
    title: {
-      fontSize: 22,
+      fontSize: 28,
       fontWeight: "bold",
       marginBottom: 20,
       textAlign: "center",
+      color: '#1282de',
    },
    input: {
       borderWidth: 1,
@@ -101,16 +131,65 @@ const styles = StyleSheet.create({
       marginBottom: 12,
       borderRadius: 6,
       fontSize: 16,
+      width: "15vw",
    },
    btn: {
-      backgroundColor: "#1510ef",
+      backgroundColor: "#166cc7",
       padding: 14,
       borderRadius: 6,
       alignItems: "center",
+      width: "15vw",
+      margin: 8,
    },
-   btnText: {
+   btnTextLight: {
       color: "#ffffff",
       fontSize: 16,
       fontWeight: "600",
    },
+   btnTextDark: {
+      color: "#3b3a3a",
+      fontSize: 16,
+      fontWeight: "600",
+   },
+   btnSecondary: {
+      backgroundColor: "#bdb9b9",
+      padding: 14,
+      margin: 8,
+      borderRadius: 6,
+      alignItems: "center",
+      color: "#000000",
+      width: "15vw",
+   },
+   btnFacebook: {
+      backgroundColor: "#085bc1",
+      padding: 14,
+      margin: 8,
+      borderRadius: 6,
+      alignItems: "center",
+      color: "#ffffff",
+      width: "15vw",
+   },
+   btnGoogle: {
+      backgroundColor: "#e03d3d",
+      padding: 14,
+      margin: 8,
+      borderRadius: 6,
+      alignItems: "center",
+      color: "#ffffff",
+      width: "15vw",
+   },
+   btnApple: {
+      backgroundColor: "#787a7c",
+      padding: 14,
+      margin: 8,
+      borderRadius: 6,
+      alignItems: "center",
+      color: "#ffffff",
+      width: "15vw",
+   },
+   img: {
+      width: 100, 
+      height: 100, 
+      marginBottom: 20,
+   }
 });
