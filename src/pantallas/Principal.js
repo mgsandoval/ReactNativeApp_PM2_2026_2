@@ -1,18 +1,22 @@
 // Librerías o inputs
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, SafeAreaView, TouchableOpacity } from 'react-native';
 
 // Función principal que renderiza la aplicación
-export default function App() {
-  const [user, setUser] = useState('');
-  const [pass, setPass] = useState('');
+export default function Principal({ route, navigation }) {
+const { user } = route.params || { user: 'Usuario' };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Pantalla Principal</Text>
-      <StatusBar style="auto" />
+      <Text style={styles.subText}>¡Bienvenido, {user.nombre_completo}!</Text>
+      <TouchableOpacity
+        style={styles.logoutBtn}
+        onPress={() => navigation.navigate('Login')}
+      >
+        <Text style={styles.logoutText}>Cerrar Sesión</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -38,5 +42,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 6,
     fontSize: 16,
-  }
+  },
+  subText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 40,
+  },
+   logoutBtn: {
+    backgroundColor: '#3b5bdb',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+  },
+  logoutText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
 });

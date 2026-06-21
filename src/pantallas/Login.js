@@ -1,19 +1,35 @@
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, TextInput, Image } from "react-native";
+import {
+   StyleSheet,
+   Text,
+   TouchableOpacity,
+   View,
+   TextInput,
+   Image,
+} from "react-native";
 import CustomAlert from "../componentes/CustomAlert";
 import { useNavigation } from "@react-navigation/native";
+import { API_URLS } from "../config/config";
+import BitacoraServices from '../componentes/Bitacora';
 
 //Formulario o Pantalla
-export default function App() {
-   const [user, setUser] = useState("");
-   const [pass, setPass] = useState("");
+export default function Login() {
+   const [username, setUsername] = useState("");
+   const [password, setPassword] = useState("");
    const [alert, setAlert] = useState({
       visible: false,
       title: "",
       message: "",
       _callback: null,
    });
+
+   const [conexionBd, setConexionBD] = useState({
+      estado: "Verificando...",
+      mensaje: "Verificando conexión...",
+      datos: null,
+   });
+
    const showCustomAlert = (title, message, callback) => {
       setAlert({
          visible: true,
@@ -22,52 +38,114 @@ export default function App() {
          _callback: callback,
       });
    };
+
    const navigation = useNavigation();
 
    ///FUNCIONES
-   const manejaLogin = () => {
-      console.log("Botón Presionado");
+   const handleLogin = async () => {
+      if (!username || !password) {
+         showCustomAlert('Campos vacios', 'Por favor ingrese usuario y contraseña.');
+         return;
+      }
 
-      if (user.trim() === "" || pass.trim() === "") {
-         showCustomAlert("Campos vacíos", `Por favor, ingrese Usuario y Contraseña`);
-         return;
-      } else if (user === "admin" && pass === "admin") {
-         showCustomAlert("¡Bienvenido!", "Ha ingresado correctamente", () => {
-            navigation.navigate("Home");
+      try {
+         const respuesta = await fetch(API_URLS.LOGIN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ user: username, pass: password }),
          });
-         return;
+         const textoRespuesta = await respuesta.text();
+         console.log("Respuesta del servidor", textoRespuesta);
+
+         const data = JSON.parse(textoRespuesta);
+
+         if (data.exito) {
+            console.log("usuarioId:", data.usuario.id);
+            const resultDispo = await BitacoraServices.registrarDispositivo();
+            //Llamar a Guardar Evento en Bitacora
+            await BitacoraServices.registrarEvento({
+               accion: "LOGIN",
+               usuario_id: data.usuario.id,
+               estado_operacion: "EXITOSO",
+               mensaje_error: null
+            });
+            navigation.navigate('Home', { user: data.usuario });
+         } else {
+            showCustomAlert('Error', data.mensaje);
+         }
+      } catch (error) {
+         console.error("Error", error);
       }
    };
 
-   const manejaCrearCuenta = () => {
-      navigation.navigate("Usuarios");
+   // Método para verificar la conexión a la base de datos
+   const verificarConexionBD = async () => {
+      setConexionBD({ estado: "Verificando...", mensaje: "Verificando conexión...", datos: null });
+
+      try {
+         const respuesta = await fetch(API_URLS.CHECKDB, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+         });
+
+         const textoRespuesta = await respuesta.text();
+         console.log(textoRespuesta);
+         if (!respuesta.ok) {
+            throw new Error(`Error http: ${respuesta.status}`);
+         }
+         const data = JSON.parse(textoRespuesta);
+         if (data.conectado) {
+            setConexionBD({ estado: "¡Conectado!", mensaje: "Conexión establecida.", datos: data });
+            // showCustomAlert('Éxito', 'Conexión satisfactoria.');
+         }
+      } catch (error) {
+         console.error("Error de conexión:", error.message);
+         setConexionBD({ estado: "Error de conexión", mensaje: error.message, datos: null });
+      }
    };
 
+   // --------------------------------------------------
+
+   const handleCrearCuenta = () => {
+      navigation.navigate("Crear cuenta");
+   };
+
+   const handleIMCCalculator = () => {
+      navigation.navigate("IMCCalculator");
+   }
+
+   useEffect(() => {
+      verificarConexionBD();
+   }, []);
 
    return (
       <View style={styles.container}>
          <Image
-            source={require('../../assets/usuario_icon.png')}
-            style={ styles.img }
+            source={require("../../assets/usuario_icon.png")}
+            style={styles.img}
          />
          <Text style={styles.title}>Iniciar sesión</Text>
          <TextInput
             style={styles.input}
             placeholder="Ingrese un usuario"
-            value={user}
+            value={username}
             autoCapitalize="none"
-            onChangeText={setUser}
+            onChangeText={setUsername}
          />
 
          <TextInput
             style={styles.input}
             placeholder="Ingrese una contraseña"
-            value={pass}
+            value={password}
             secureTextEntry
-            onChangeText={setPass}
+            onChangeText={setPassword}
          />
 
-         <TouchableOpacity style={styles.btn} onPress={manejaLogin}>
+         <Text style={{ marginBottom: 12, color: "#929292" }}>
+            {conexionBd.estado}
+         </Text>
+
+         <TouchableOpacity style={styles.btn} onPress={handleLogin}>
             <Text style={styles.btnTextLight}>Entrar</Text>
          </TouchableOpacity>
 
@@ -87,8 +165,12 @@ export default function App() {
             <Text style={styles.btnTextLight}>Iniciar sesión con Apple</Text>
          </TouchableOpacity>
 
-         <TouchableOpacity style={styles.btnSecondary} onPress={manejaCrearCuenta}>
+         <TouchableOpacity style={styles.btnSecondary} onPress={handleCrearCuenta}>
             <Text style={styles.btnTextDark}>¿No tienes cuenta? Crea una</Text>
+         </TouchableOpacity>
+
+         <TouchableOpacity style={styles.btnSecondary} onPress={handleIMCCalculator}>
+            <Text style={styles.btnTextDark}>Calcular IMC</Text>
          </TouchableOpacity>
 
          <CustomAlert
@@ -122,7 +204,7 @@ const styles = StyleSheet.create({
       fontWeight: "bold",
       marginBottom: 20,
       textAlign: "center",
-      color: '#1282de',
+      color: "#1282de",
    },
    input: {
       borderWidth: 1,
@@ -131,14 +213,14 @@ const styles = StyleSheet.create({
       marginBottom: 12,
       borderRadius: 6,
       fontSize: 16,
-      width: "15vw",
+      width: "100%",
    },
    btn: {
       backgroundColor: "#166cc7",
       padding: 14,
       borderRadius: 6,
       alignItems: "center",
-      width: "15vw",
+      width: "100%",
       margin: 8,
    },
    btnTextLight: {
@@ -158,7 +240,7 @@ const styles = StyleSheet.create({
       borderRadius: 6,
       alignItems: "center",
       color: "#000000",
-      width: "15vw",
+      width: "100%",
    },
    btnFacebook: {
       backgroundColor: "#085bc1",
@@ -167,7 +249,7 @@ const styles = StyleSheet.create({
       borderRadius: 6,
       alignItems: "center",
       color: "#ffffff",
-      width: "15vw",
+      width: "100%",
    },
    btnGoogle: {
       backgroundColor: "#e03d3d",
@@ -176,7 +258,7 @@ const styles = StyleSheet.create({
       borderRadius: 6,
       alignItems: "center",
       color: "#ffffff",
-      width: "15vw",
+      width: "100%",
    },
    btnApple: {
       backgroundColor: "#787a7c",
@@ -185,11 +267,23 @@ const styles = StyleSheet.create({
       borderRadius: 6,
       alignItems: "center",
       color: "#ffffff",
-      width: "15vw",
+      width: "100%",
    },
    img: {
-      width: 100, 
-      height: 100, 
+      width: 100,
+      height: 100,
       marginBottom: 20,
+   },
+   connOKText: {
+      color: '#2f9e44',
+      fontSize: 13,
+      marginBottom: 10,
+      textAlign: 'center',
+   },
+   connErrorText: {
+      color: '#e03131',
+      fontSize: 13,
+      marginBottom: 10,
+      textAlign: 'center',
    }
 });

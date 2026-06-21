@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 
 // Función principal que renderiza la aplicación
-export default function Usuario() {
+export default function CrearUsuario() {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
   const [verifyPass, setVerifyPass] = useState('');
