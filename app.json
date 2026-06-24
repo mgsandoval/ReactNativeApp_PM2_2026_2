@@ -24,13 +24,24 @@
       "package": "com.mgsandoval.PM2_2026_2"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "dangerouslyAllowMixedContent": true
     },
     "extra": {
       "eas": {
         "projectId": "94d62fac-6b62-48e1-8041-45ce76e31a08"
       }
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
     "runtimeVersion": {
       "policy": "appVersion"
     },

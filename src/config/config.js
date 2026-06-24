@@ -1,5 +1,5 @@
-export const API_BASE_URL = "http://localhost:81/movil2"; // Base de datos localhost
-// export const API_BASE_URL = "http://localhost:81/movil2"; // Base de datos nube
+// export const API_BASE_URL = "http://localhost:81/movil2"; // Base de datos localhost
+export const API_BASE_URL = "http://marlon.bonaquian.com/"; // Base de datos nube
 // export const API_BASE_URL = "http://localhost:81/movil2"; // Base de datos en casa
 
 export const API_URLS = {

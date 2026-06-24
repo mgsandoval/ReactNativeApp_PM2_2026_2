@@ -83,24 +83,52 @@ export default function Login() {
       setConexionBD({ estado: "Verificando...", mensaje: "Verificando conexión...", datos: null });
 
       try {
+         console.log("Intentando conectar a:", API_URLS.CHECKDB);
+         
          const respuesta = await fetch(API_URLS.CHECKDB, {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
          });
 
+         console.log("Respuesta status:", respuesta.status);
+         console.log("Respuesta ok:", respuesta.ok);
+         
          const textoRespuesta = await respuesta.text();
-         console.log(textoRespuesta);
+         console.log("Respuesta texto:", textoRespuesta);
+         console.log("Respuesta tipo:", typeof textoRespuesta);
+         
          if (!respuesta.ok) {
             throw new Error(`Error http: ${respuesta.status}`);
          }
-         const data = JSON.parse(textoRespuesta);
+         
+         // Try parsing JSON with error handling
+         let data;
+         try {
+            data = JSON.parse(textoRespuesta);
+            console.log("JSON parsed:", data);
+         } catch (parseError) {
+            console.error("JSON parse error:", parseError);
+            console.error("Raw response:", textoRespuesta);
+            throw new Error(`JSON Parse Error: ${parseError.message}`);
+         }
+         
          if (data.conectado) {
+            console.log("Conexión exitosa!");
             setConexionBD({ estado: "¡Conectado!", mensaje: "Conexión establecida.", datos: data });
-            // showCustomAlert('Éxito', 'Conexión satisfactoria.');
+         } else {
+            throw new Error(`Conexión rechazada: ${data.mensaje}`);
          }
       } catch (error) {
-         console.error("Error de conexión:", error.message);
-         setConexionBD({ estado: "Error de conexión", mensaje: error.message, datos: null });
+         console.error("Error de conexión - Detalles:");
+         console.error("- Nombre:", error.name);
+         console.error("- Mensaje:", error.message);
+         console.error("- Stack:", error.stack);
+         
+         setConexionBD({ 
+            estado: `Error: ${error.name}`, 
+            mensaje: error.message, 
+            datos: null 
+         });
       }
    };
 
